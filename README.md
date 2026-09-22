@@ -31,6 +31,14 @@ level, get live conformance checks, and export:
 
 ---
 
+## User Guide
+
+Full step-by-step manual (setup, dashboard, all workspace tabs, topology,
+timing, validation rules, ARXML import, ARXML/RTE export, examples and
+troubleshooting): **[docs/user-guide.html](docs/user-guide.html)**
+
+---
+
 ## Features
 
 - **SW-C modeling** — 8 AUTOSAR categories (application, sensor-actuator,
