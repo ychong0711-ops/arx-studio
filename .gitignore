@@ -23,3 +23,6 @@ examples/host-rte/build/
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
+
+# browser-mcp artifacts
+.playwright-mcp/
