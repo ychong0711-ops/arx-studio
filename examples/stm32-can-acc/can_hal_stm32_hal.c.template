@@ -1,0 +1,119 @@
+/*
+ * can_hal_stm32_hal.c.template
+ * -------------------------------------------------------------------------
+ * STM32Cube HAL implementation of can_hal.h - PORTING SKELETON ONLY.
+ *
+ * The ".template" suffix keeps this file out of the host build
+ * (Makefile compiles only *.c sources listed in SRCS). To use it on a
+ * board: copy it to can_hal_stm32_hal.c in the STM32 project and REMOVE
+ * can_hal_mock.c from the build.
+ *
+ * INTEGRATION CHECKLIST
+ *  1. CubeMX: enable CAN1 (Master, Normal mode), 500 kbit/s, with the
+ *     board-specific pins (e.g. PB8/PB9 or PA11/PA12) and time quanta
+ *     derived from your APB1 clock. Generate code (keeps hcan1 in main.c).
+ *  2. Filter: the bank below accepts only the speed-sensor frame 0x180 on
+ *     RX FIFO0 (the ACC status frame 0x1A0 is transmit-only in this demo).
+ *     Add a second filter bank if other nodes must be received too.
+ *  3. Can_Init() is already invoked by AccCtrl_Init() at startup.
+ *  4. Polling vs interrupt: the code below polls HAL_CAN_GetRxMessage()
+ *     from the 20 ms task, mirroring the host demo. For lower latency,
+ *     activate the CAN1 RX0 interrupt (HAL_CAN_ActivateNotification) and
+ *     copy received frames into a queue drained by Can_Receive().
+ *  5. Set the loopback ONLY if you want the ECU to hear its own frames;
+ *     the demo works without it (the plant model feeds the input).
+ */
+
+#include "main.h"  /* CubeMX generated; defines hcan1 (CAN_HandleTypeDef) */
+#include "can_hal.h"
+
+extern CAN_HandleTypeDef hcan1; /* defined in main.c by CubeMX           */
+
+#define CAN_FILTER_BANK 0u
+
+/* Node wiring example: F4/F7 series - adjust to the exact MCU. */
+static CanStatus HAL_toCanStatus(HAL_StatusTypeDef st)
+{
+    switch (st) {
+    case HAL_OK:
+        return CAN_OK;
+    case HAL_BUSY:
+        return CAN_BUSY;
+    default:
+        return CAN_ERROR;
+    }
+}
+
+CanStatus Can_Init(void)
+{
+    CAN_FilterTypeDef filter;
+    HAL_StatusTypeDef st;
+
+    /* Accept only ID 0x180 (speed sensor) on FIFO0.
+     * 32-bit mask mode: STID[10:0] lives in bits 13..3 of the filter
+     * registers; mask 0xFFE0 << 0 makes all 11 ID bits mandatory.       */
+    filter.FilterActivation        = CAN_FILTER_ENABLE;
+    filter.FilterMode              = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale             = CAN_FILTERSCALE_32BIT;
+    filter.FilterIdHigh            = (uint16)(((uint32)CAN_ID_SPEED_SENSOR
+                                               & 0x7FFu) << 5u);
+    filter.FilterIdLow             = 0u;
+    filter.FilterMaskIdHigh        = (uint16)(0x7FFu << 5u);
+    filter.FilterMaskIdLow         = 0u;
+    filter.FilterFIFOAssignment    = CAN_RX_FIFO0;
+    filter.FilterBank              = CAN_FILTER_BANK;
+    filter.SlaveStartFilterBank    = 14u; /* dual-CAN parts: adjust      */
+
+    st = HAL_CAN_ConfigFilter(&hcan1, &filter);
+    if (st != HAL_OK) {
+        return CAN_ERROR;
+    }
+    st = HAL_CAN_Start(&hcan1);
+    return HAL_toCanStatus(st);
+}
+
+CanStatus Can_Transmit(const CanMessage *msg)
+{
+    CAN_TxHeaderTypeDef txHeader;
+    uint32              txMailbox = 0u;
+    HAL_StatusTypeDef   st;
+
+    if (msg == (const CanMessage *)0) {
+        return CAN_ERROR;
+    }
+
+    txHeader.StdId             = msg->id;
+    txHeader.ExtId             = 0u;
+    txHeader.IDE               = CAN_ID_STD;
+    txHeader.RTR               = CAN_RTR_DATA;
+    txHeader.DLC               = msg->dlc;
+    txHeader.TransmitGlobalTime = DISABLE;
+
+    /* HAL_CAN_AddTxMessage copies data[] into the hardware mailbox. */
+    st = HAL_CAN_AddTxMessage(&hcan1, &txHeader, msg->data, &txMailbox);
+    return HAL_toCanStatus(st);
+}
+
+CanStatus Can_Receive(CanMessage *msg)
+{
+    CAN_RxHeaderTypeDef rxHeader;
+    HAL_StatusTypeDef   st;
+
+    if (msg == (CanMessage *)0) {
+        return CAN_ERROR;
+    }
+
+    st = HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxHeader, msg->data);
+    if (st == HAL_OK) {
+        msg->id  = rxHeader.StdId; /* classic CAN: standard ID field     */
+        msg->dlc = rxHeader.DLC;
+        if (msg->dlc > 8u) {
+            msg->dlc = 8u; /* defensive: an 8-byte array cannot hold more */
+        }
+        return CAN_OK;
+    }
+
+    /* HAL_ERROR is returned when the FIFO is empty - the poll simply has
+     * nothing to deliver this 20 ms cycle.                               */
+    return CAN_BUSY;
+}

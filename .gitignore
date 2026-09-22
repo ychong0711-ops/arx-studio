@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+
+# environment
+.env
+.env.local
+.env.*.local
+
+# generated build artifacts (host-rte contract demo)
+examples/host-rte/build/
+
+# example binaries
+*.exe
+*.o
+*.obj
+
+# logs / os
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db

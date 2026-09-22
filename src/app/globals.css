@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-display: var(--font-space), var(--font-inter), ui-sans-serif,
+    system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", Menlo,
+    Consolas, monospace;
+
+  /* 잉크 팔레트 — 짙은 엔지니어링 도구 배경 */
+  --color-ink-950: #05070b;
+  --color-ink-900: #090c12;
+  --color-ink-850: #0c1018;
+  --color-ink-800: #10151f;
+  --color-ink-750: #141a26;
+  --color-ink-700: #1a2230;
+  --color-ink-600: #232e42;
+  --color-ink-500: #33415c;
+
+  --color-line: #1b2434;
+  --color-line-bright: #2b3a54;
+
+  --color-fog: #94a3b8;
+  --color-mist: #c4cfdd;
+  --color-snow: #eef3fa;
+
+  --color-accent: #2ecdf7;
+  --color-accent-deep: #0899c4;
+  --color-mint: #3ddc97;
+  --color-amberx: #f6b73c;
+  --color-rose: #f0648c;
+  --color-violet: #9b87f5;
+
+  --shadow-glow: 0 0 24px rgba(46, 205, 247, 0.22);
+  --shadow-panel: 0 18px 50px -18px rgba(0, 0, 0, 0.75);
+
+  --animate-flicker: flicker 3.4s ease-in-out infinite;
+  --animate-scan: scan 7s linear infinite;
+  --animate-dash: dash 1.2s linear infinite;
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(420%); }
+  }
+  @keyframes dash {
+    to { stroke-dashoffset: -28; }
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-ink-950);
+  color: var(--color-snow);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(46, 205, 247, 0.35);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #26324a transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #26324a;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── 패널 / 배경 유틸 ─────────────────────────────── */
+.panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0) 42%),
+    var(--color-ink-850);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+}
+
+.panel-hover {
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.panel-hover:hover {
+  border-color: var(--color-line-bright);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-panel);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 35%, transparent 100%);
+}
+
+.text-glow {
+  text-shadow: 0 0 18px rgba(46, 205, 247, 0.55);
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-line-bright);
+}
+
+/* ── React Flow 다크 테마 ─────────────────────────── */
+.xy-theme,
+.xy-theme .react-flow {
+  --xy-background-color: #07090f;
+  --xy-node-background-color: #10151f;
+  --xy-node-color: #eef3fa;
+  --xy-edge-stroke: #3b4d6d;
+  --xy-edge-stroke-selected: #2ecdf7;
+  --xy-connectionline-stroke: #2ecdf7;
+  --xy-attribution-background-color: transparent;
+  --xy-minimap-background-color: #0b0f16;
+  --xy-minimap-mask-background-color: rgba(5, 7, 11, 0.72);
+  --xy-minimap-node-background-color: #232e42;
+  --xy-controls-button-background-color: #121826;
+  --xy-controls-button-background-color-hover: #1a2230;
+  --xy-controls-button-color: #94a3b8;
+  --xy-controls-button-border-color: #1b2434;
+  --xy-handle-background-color: #2ecdf7;
+  --xy-handle-border-color: #05070b;
+}
+.react-flow__attribution {
+  background: transparent !important;
+  color: #33415c;
+}
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #2ecdf7 !important;
+  stroke-width: 2.2;
+}
+.react-flow__edge-path {
+  stroke-width: 1.6;
+}
+.react-flow__handle {
+  width: 9px;
+  height: 9px;
+  border-width: 2px;
+}
+
+/* input number 스피너 제거 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
