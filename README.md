@@ -15,6 +15,22 @@ level, get live conformance checks, and export:
 
 ---
 
+## Screenshots
+
+**Project dashboard** (ACC demo project)
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+**Assembly topology** — drag SW-Cs, link P-Port ↔ R-Port on a React Flow canvas
+
+![Topology](docs/screenshots/topology.png)
+
+**Export tab** — schema-verified ARXML and RTE contract code (C)
+
+![Export](docs/screenshots/export.png)
+
+---
+
 ## Features
 
 - **SW-C modeling** — 8 AUTOSAR categories (application, sensor-actuator,
